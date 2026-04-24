@@ -1,31 +1,27 @@
 import os
 from typing import List, Dict, Any
-from llama_cpp import Llama
-import json
+import google.generativeai as genai
 
 class LLMService:
     def __init__(self):
-        self.model_path = os.getenv('LLM_MODEL_PATH', './models/mistral-7b-instruct-v0.2.Q4_K_M.gguf')
+        self.api_key = os.getenv('GEMINI_API_KEY')
+        self.model_name = os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
         self.llm = None
         self._initialize_model()
     
     def _initialize_model(self):
-        """Initialize the LLM model"""
+        """Initialize Gemini model client."""
         try:
-            if os.path.exists(self.model_path):
-                self.llm = Llama(
-                    model_path=self.model_path,
-                    n_ctx=4096,  # Context window
-                    n_threads=4,  # Number of CPU threads
-                    n_gpu_layers=0  # Set to > 0 if GPU is available
-                )
-                print(f"LLM model loaded successfully from {self.model_path}")
+            if self.api_key:
+                genai.configure(api_key=self.api_key)
+                self.llm = genai.GenerativeModel(self.model_name)
+                print(f"Gemini model initialized successfully: {self.model_name}")
             else:
-                print(f"Warning: Model file not found at {self.model_path}")
+                print("Warning: GEMINI_API_KEY not found")
                 print("Using mock responses for development")
                 self.llm = None
         except Exception as e:
-            print(f"Error loading LLM model: {e}")
+            print(f"Error initializing Gemini model: {e}")
             print("Using mock responses for development")
             self.llm = None
     
@@ -58,20 +54,19 @@ Answer:"""
         
         try:
             if self.llm:
-                # Use the actual LLM
                 prompt = self._create_prompt(question, context_docs)
-                
-                response = self.llm(
+                response = self.llm.generate_content(
                     prompt,
-                    max_tokens=512,
-                    temperature=0.1,
-                    stop=["Question:", "\n\n"]
+                    generation_config={
+                        "temperature": 0.1,
+                        "max_output_tokens": 512,
+                    },
                 )
-                
-                answer = response['choices'][0]['text'].strip()
+                answer = (response.text or "").strip()
+                if not answer:
+                    return "I couldn't generate a reliable answer from the available context."
                 return answer
             else:
-                # Mock response for development
                 return self._generate_mock_answer(question, context_docs)
                 
         except Exception as e:
@@ -132,13 +127,12 @@ Answer:"""
         if self.llm:
             return {
                 'model_loaded': True,
-                'model_path': self.model_path,
-                'context_window': 4096,
-                'model_type': 'Mistral-7B-Instruct'
+                'model_name': self.model_name,
+                'provider': 'Google Gemini'
             }
         else:
             return {
                 'model_loaded': False,
-                'model_path': self.model_path,
+                'model_name': self.model_name,
                 'note': 'Using mock responses for development'
             } 

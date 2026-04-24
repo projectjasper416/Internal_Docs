@@ -6,7 +6,7 @@ An AI-powered internal assistant that indexes team documentation and allows empl
 
 - **Google Drive Integration**: Index documents from Google Drive (Docs, Sheets, PDFs, DOCX)
 - **RAG Pipeline**: Retrieval Augmented Generation for accurate answers
-- **Open Source LLM**: Uses Mistral-7B-Instruct for answer generation
+- **Gemini API**: Uses Google Gemini for answer generation
 - **Modern UI**: Beautiful, responsive React frontend with chat interface
 - **Source Attribution**: Shows which documents were used to generate answers
 - **Real-time Status**: Connection status indicators and health checks
@@ -16,8 +16,7 @@ An AI-powered internal assistant that indexes team documentation and allows empl
 ### Backend Requirements
 - Python 3.9+
 - Google Drive API credentials
-- GGUF model file (e.g., Mistral-7B-Instruct)
-- 4GB+ RAM (for LLM inference)
+- Gemini API key
 
 ### Frontend Requirements
 - Node.js 16+
@@ -45,12 +44,8 @@ cp env.example .env
 
 # Edit .env with your configuration
 # - Add Google Drive API credentials
-# - Set LLM model path
+# - Set Gemini API key and model
 # - Configure other settings
-
-# Create models directory and add your GGUF model
-mkdir -p models
-# Download your preferred GGUF model and place it in models/
 ```
 
 ### 3. Frontend Setup
@@ -89,13 +84,14 @@ The application will be available at:
 5. Download credentials JSON file
 6. Place it in the backend directory as `credentials.json`
 
-### LLM Model Setup
+### Gemini Setup
 
-Download a GGUF model file and place it in the `backend/models/` directory:
+Create a Gemini API key in Google AI Studio and set it in `backend/.env`:
 
 ```bash
-# Example: Download Mistral-7B-Instruct
-wget https://huggingface.co/TheBloke/Mistral-7B-Instruct-v0.2-GGUF/resolve/main/mistral-7b-instruct-v0.2.Q4_K_M.gguf -O backend/models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+# Example environment variables
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
 ```
 
 ### Environment Variables
@@ -107,7 +103,8 @@ Create a `.env` file in the backend directory:
 GOOGLE_DRIVE_CREDENTIALS_FILE=credentials.json
 
 # LLM Configuration
-LLM_MODEL_PATH=./models/mistral-7b-instruct-v0.2.Q4_K_M.gguf
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
 
 # Hugging Face Token (optional)
 HF_TOKEN=your_huggingface_token_here
@@ -241,10 +238,9 @@ cd frontend && npm run build
    - Check OAuth 2.0 setup in Google Cloud Console
    - Verify API permissions
 
-3. **LLM model not loading**:
-   - Check model file path in `.env`
-   - Ensure sufficient RAM (4GB+)
-   - Try smaller model if memory issues
+3. **Gemini not responding**:
+   - Check `GEMINI_API_KEY` and `GEMINI_MODEL` in `.env`
+   - Verify API key permissions and quota
 
 4. **Vector database errors**:
    - Delete `./chroma_db/` directory to reset
@@ -253,9 +249,8 @@ cd frontend && npm run build
 
 ### Performance Tips
 
-- Use smaller GGUF models for faster inference
-- Increase `n_threads` for better CPU utilization
-- Enable GPU acceleration if available
+- Use lightweight Gemini models for faster responses
+- Reduce context size if latency increases
 - Optimize document chunking parameters
 
 ## 🤝 Contributing
@@ -272,7 +267,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 🙏 Acknowledgments
 
-- [Mistral AI](https://mistral.ai/) for the open-source LLM
+- [Google Gemini](https://ai.google.dev/) for LLM API
 - [ChromaDB](https://www.trychroma.com/) for vector database
 - [Sentence Transformers](https://www.sbert.net/) for embeddings
 - [React](https://reactjs.org/) for the frontend framework

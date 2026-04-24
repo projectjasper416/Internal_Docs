@@ -6,7 +6,7 @@ This is the Flask backend for the Internal Docs Q&A Agent, which provides API en
 
 - Google Drive integration for document indexing
 - RAG (Retrieval Augmented Generation) pipeline
-- Open-source LLM integration (Mistral-7B-Instruct)
+- Gemini API integration for answer generation
 - Vector database storage with ChromaDB
 - Support for multiple document formats (Google Docs, PDFs, DOCX, etc.)
 
@@ -29,7 +29,8 @@ cp env.example .env
 Edit `.env` with your configuration:
 
 - `GOOGLE_DRIVE_CREDENTIALS_FILE`: Path to your Google Drive API credentials
-- `LLM_MODEL_PATH`: Path to your GGUF model file
+- `GEMINI_API_KEY`: Your Google AI Studio API key
+- `GEMINI_MODEL`: Gemini model name (default: `gemini-1.5-flash`)
 - `HF_TOKEN`: Your Hugging Face token (optional)
 
 ### 3. Google Drive API Setup
@@ -41,13 +42,14 @@ Edit `.env` with your configuration:
 5. Download the credentials JSON file
 6. Place it in the backend directory as `credentials.json`
 
-### 4. LLM Model Setup
+### 4. Gemini API Setup
 
-Download a GGUF model file (e.g., Mistral-7B-Instruct) and place it in the `models/` directory:
+Create a Gemini API key in Google AI Studio and set it in `.env`:
 
 ```bash
-mkdir -p models
-# Download your preferred GGUF model and place it in models/
+# Example
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-1.5-flash
 ```
 
 ### 5. Run the Application
@@ -99,14 +101,14 @@ backend/
 
 ## Development Notes
 
-- The system uses mock responses when the LLM model is not available
+- The system uses mock responses when Gemini configuration is not available
 - Google Drive integration requires proper OAuth setup
 - Vector database is stored locally in `./chroma_db/`
 - Embedding model is downloaded automatically on first use
 
 ## Troubleshooting
 
-1. **Model not found**: Ensure the GGUF model file is in the correct location
+1. **Gemini not configured**: Ensure `GEMINI_API_KEY` is set in `.env`
 2. **Google Drive authentication**: Check that `credentials.json` is properly configured
-3. **Memory issues**: Reduce `n_threads` in LLMService for lower memory usage
+3. **API errors**: Verify your Gemini key and model name are valid
 4. **Vector database errors**: Delete `./chroma_db/` directory to reset the database 
